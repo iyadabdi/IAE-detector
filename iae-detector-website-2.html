@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IAE Detector — International Art English Scanner</title>
+  <meta name="description" content="A browser extension that detects, scores, and highlights International Art English in arts writing. Free for Chrome.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500&family=Space+Mono:wght@400;700&family=Playfair+Display:ital,wght@1,400;1,700&family=Syne:wght@800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #111111;
+      --white: #ffffff;
+      --mid: #555555;
+      --light: #999999;
+      --rule: #e0e0e0;
+      --accent: #c4b5fd;
+      --accent-dark: #7c3aed;
+      --t1: #fde047;
+      --t2: #fb923c;
+      --t3: #f87171;
+      --t4: #c4b5fd;
+      --page-max: 1080px;
+      --gutter: clamp(24px, 5vw, 80px);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+      color: var(--black);
+      background: var(--white);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── LAYOUT ── */
+    .container {
+      max-width: var(--page-max);
+      margin: 0 auto;
+      padding: 0 var(--gutter);
+    }
+
+    hr.rule {
+      border: none;
+      border-top: 1px solid var(--rule);
+      margin: 0;
+    }
+
+    /* ── GRADIENT (matches extension logo / scan button) ── */
+    :root {
+      --grad: linear-gradient(135deg, #9333ea, #ec4899);
+    }
+    .btn-primary:hover { background: var(--grad); }
+    .nav-cta:hover { background: var(--grad) !important; color: var(--white) !important; }
+
+    /* ── HERO MIXED TYPOGRAPHY ── */
+    .hero-word-international {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 300;
+      letter-spacing: -0.01em;
+      display: block;
+    }
+    .hero-word-art {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      display: block;
+    }
+    .hero-word-english {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-weight: 400;
+      font-style: italic;
+      letter-spacing: 0.01em;
+      display: block;
+    }
+
+    /* ── HIGHLIGHTING word in How It Works heading ── */
+    .word-highlight {
+      background: rgba(248,113,113,0.3);
+      border-bottom: 2px solid rgba(220,38,38,0.6);
+      padding: 0 2px;
+    }
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--rule);
+    }
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+    }
+    .nav-logo {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--black);
+      text-decoration: none;
+    }
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      color: var(--mid);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.15s;
+    }
+    .nav-links a:hover { color: var(--black); }
+    .nav-cta {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--white) !important;
+      background: var(--black);
+      padding: 8px 16px;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .nav-cta:hover { /* overridden by gradient rule above */ }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 140px 0 80px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .hero-eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--light);
+      margin-bottom: 28px;
+    }
+    .hero h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(48px, 7vw, 88px);
+      font-weight: 700;
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      max-width: 820px;
+      margin-bottom: 32px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--mid);
+    }
+    .hero-sub {
+      font-size: 17px;
+      font-weight: 400;
+      color: var(--mid);
+      max-width: 560px;
+      line-height: 1.7;
+      margin-bottom: 48px;
+    }
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      display: inline-block;
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--white);
+      background: var(--black);
+      padding: 14px 28px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn-primary:hover { /* overridden by gradient rule above */ }
+    .hero-note {
+      font-size: 12px;
+      color: var(--light);
+    }
+
+    /* ── DEMO ── */
+    .demo-section {
+      padding: 80px 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .demo-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--light);
+      margin-bottom: 20px;
+    }
+    .demo-grid {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 40px;
+      align-items: start;
+    }
+    .demo-textarea {
+      width: 100%;
+      min-height: 180px;
+      border: 1px solid var(--rule);
+      border-radius: 0;
+      padding: 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--black);
+      background: #fafafa;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .demo-textarea:focus { border-color: #aaa; }
+    .demo-textarea::placeholder { color: #bbb; font-style: italic; }
+
+    /* Highlight styles within the demo output */
+    .demo-output {
+      width: 100%;
+      min-height: 180px;
+      border: 1px solid var(--rule);
+      padding: 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+      background: var(--white);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .hl-t1 { background: rgba(253,224,71,0.4); border-bottom: 1px solid rgba(234,179,8,0.5); }
+    .hl-t2 { background: rgba(251,146,60,0.35); border-bottom: 2px solid rgba(234,88,12,0.6); }
+    .hl-t3 { background: rgba(248,113,113,0.3); border-bottom: 2px solid rgba(220,38,38,0.6); font-style: italic; }
+    .hl-t4 { background: rgba(196,181,253,0.4); border-bottom: 2px solid rgba(124,58,237,0.7); font-weight: 500; }
+
+    .demo-score-panel {
+      border: 1px solid var(--rule);
+      padding: 28px;
+    }
+    .score-display {
+      margin-bottom: 24px;
+    }
+    .score-number-big {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 80px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      color: var(--black);
+      transition: color 0.4s;
+    }
+    .score-level {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-top: 6px;
+      transition: color 0.4s;
+    }
+    .score-desc {
+      font-size: 13px;
+      color: var(--mid);
+      margin-top: 8px;
+      font-style: normal;
+    }
+    .score-meter {
+      height: 4px;
+      background: var(--rule);
+      margin: 20px 0;
+      overflow: hidden;
+    }
+    .score-meter-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--t1), var(--t2), var(--t3), var(--t4));
+      width: 0%;
+      transition: width 0.6s ease;
+    }
+    .score-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .score-stat {
+      border-top: 1px solid var(--rule);
+      padding-top: 10px;
+    }
+    .score-stat-val {
+      font-family: 'Space Mono', monospace;
+      font-size: 18px;
+      font-weight: 700;
+      display: block;
+    }
+    .score-stat-lbl {
+      font-size: 11px;
+      color: var(--light);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── KEY ── */
+    .key-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    .key-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--mid);
+    }
+    .key-swatch {
+      width: 10px; height: 10px; flex-shrink: 0;
+      border-radius: 1px;
+    }
+
+    /* ── SECTIONS ── */
+    section { padding: 96px 0; border-bottom: 1px solid var(--rule); }
+
+    .section-eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--light);
+      margin-bottom: 40px;
+    }
+
+    .section-heading {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 700;
+      line-height: 1.0;
+      letter-spacing: -0.025em;
+      max-width: 680px;
+      margin-bottom: 28px;
+    }
+    .section-heading em { font-style: normal; color: var(--mid); }
+
+    .body-text {
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.8;
+      color: #333;
+      max-width: 620px;
+    }
+    .body-text + .body-text { margin-top: 20px; }
+    .body-text a { color: var(--black); }
+    .body-text a:hover { color: var(--accent-dark); }
+
+    /* ── TWO COL ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+    .three-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 48px;
+      margin-top: 56px;
+    }
+
+    /* ── LEVELS TABLE ── */
+    .levels-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 40px;
+      font-size: 14px;
+    }
+    .levels-table th {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--light);
+      text-align: left;
+      padding: 8px 16px 8px 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .levels-table td {
+      padding: 16px 16px 16px 0;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+    }
+    .level-badge {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 3px 8px;
+      display: inline-block;
+    }
+    .level-score {
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      color: var(--mid);
+    }
+    .level-desc-text {
+      font-size: 13px;
+      color: var(--mid);
+      font-style: normal;
+    }
+
+    /* ── FEATURE CARDS ── */
+    .feature-card { padding-top: 32px; border-top: 1px solid var(--rule); }
+    .feature-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--light);
+      margin-bottom: 16px;
+    }
+    .feature-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .feature-body { font-size: 14px; font-weight: 400; color: var(--mid); line-height: 1.7; }
+
+    /* ── ORIGIN SECTION ── */
+    .origin-quote {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(18px, 2.5vw, 24px);
+      font-weight: 500;
+      font-style: normal;
+      line-height: 1.45;
+      color: var(--mid);
+      border-left: 2px solid var(--accent);
+      padding-left: 32px;
+      margin: 48px 0;
+      max-width: 680px;
+    }
+    .origin-attribution {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--light);
+      margin-top: 12px;
+      display: block;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .steps {
+      margin-top: 56px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+    .step {
+      padding: 40px 48px 40px 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .step:nth-child(even) { padding-left: 48px; padding-right: 0; border-left: 1px solid var(--rule); }
+    .step-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--light);
+      letter-spacing: 0.1em;
+      margin-bottom: 16px;
+    }
+    .step-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .step-body { font-size: 14px; font-weight: 400; color: var(--mid); line-height: 1.7; }
+
+    /* ── TIER LIST ── */
+    .tier-list { margin-top: 48px; }
+    .tier-item {
+      display: flex;
+      align-items: baseline;
+      gap: 20px;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .tier-swatch {
+      width: 12px; height: 12px;
+      flex-shrink: 0;
+      margin-top: 3px;
+      border-radius: 2px;
+    }
+    .tier-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      flex-shrink: 0;
+      width: 72px;
+    }
+    .tier-desc { font-size: 14px; color: var(--mid); font-weight: 400; line-height: 1.6; }
+
+    /* ── INSTALL STEPS ── */
+    .install-steps { margin-top: 48px; }
+    .install-step {
+      display: flex;
+      gap: 24px;
+      padding: 24px 0;
+      border-bottom: 1px solid var(--rule);
+      align-items: start;
+    }
+    .install-step-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--light);
+      flex-shrink: 0;
+      width: 28px;
+      margin-top: 2px;
+    }
+    .install-step-text { font-size: 15px; font-weight: 400; line-height: 1.65; }
+    .install-step-text code {
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      background: #f5f5f5;
+      padding: 2px 6px;
+      border-radius: 2px;
+    }
+
+    /* ── PRIVACY ── */
+    .privacy-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      margin-top: 48px;
+    }
+    .privacy-item { border-top: 1px solid var(--rule); padding-top: 24px; }
+    .privacy-item h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .privacy-item p { font-size: 14px; font-weight: 400; color: var(--mid); line-height: 1.7; }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 64px 0;
+      background: var(--white);
+    }
+    footer .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 48px;
+      flex-wrap: wrap;
+    }
+    .footer-brand {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--black);
+      display: block;
+      margin-bottom: 8px;
+    }
+    .footer-sub {
+      font-size: 13px;
+      color: var(--light);
+      max-width: 300px;
+      line-height: 1.6;
+    }
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .footer-links a {
+      font-size: 13px;
+      color: var(--mid);
+      text-decoration: none;
+    }
+    .footer-links a:hover { color: var(--black); }
+    .footer-copy {
+      font-size: 11px;
+      color: var(--light);
+      letter-spacing: 0.04em;
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid var(--rule);
+      text-align: center;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .demo-grid, .two-col, .three-col, .steps, .privacy-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+      .step:nth-child(even) { padding-left: 0; border-left: none; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAVIGATION ── -->
+<nav>
+  <div class="container">
+    <a href="#" class="nav-logo">IAE Detector</a>
+    <ul class="nav-links">
+      <li><a href="#demo">Demo</a></li>
+      <li><a href="#origin">Origin</a></li>
+      <li><a href="#how-it-works">How It Works</a></li>
+      <li><a href="#install">Install</a></li>
+      <li><a href="#privacy">Privacy</a></li>
+    </ul>
+    <a href="#install" class="nav-cta">Get Extension</a>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero" id="top">
+  <div class="container">
+    <p class="hero-eyebrow">Chrome Extension — Free</p>
+    <h1>A scanner for<br>
+      <span class="hero-word-international">International</span>
+      <span class="hero-word-art">ART</span>
+      <span class="hero-word-english">English</span>
+    </h1>
+    <p class="hero-sub">IAE Detector reads any arts writing on the web and scores it for density of the theoretical dialect that has come to define contemporary art institutions — press releases, exhibition texts, criticism, catalogues.</p>
+    <div class="hero-actions">
+      <a href="#install" class="btn-primary">Install for Chrome</a>
+      <span class="hero-note">Free — no account required</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── LIVE DEMO ── -->
+<section class="demo-section" id="demo">
+  <div class="container">
+    <p class="demo-label">Live Demo — paste any text below</p>
+    <div class="demo-grid">
+      <div>
+        <textarea class="demo-textarea" id="demo-input" placeholder="Paste exhibition text, a press release, a catalogue essay, or anything else. The work proposes a speculative cartography of the ways in which affect and materiality negotiate the liminal thresholds of postcolonial subjectivity, foregrounding questions of alterity and positionality through an assemblage of discursive interventions that unsettle hegemonic formations of knowledge."></textarea>
+        <div class="key-row" style="margin-top:12px;">
+          <span class="key-item"><span class="key-swatch" style="background:rgba(253,224,71,0.6);border:1px solid rgba(234,179,8,0.5)"></span>Tier 1</span>
+          <span style="color:#ddd;margin:0 4px;">·</span>
+          <span class="key-item"><span class="key-swatch" style="background:rgba(251,146,60,0.5);border:1px solid rgba(234,88,12,0.5)"></span>Tier 2</span>
+          <span style="color:#ddd;margin:0 4px;">·</span>
+          <span class="key-item"><span class="key-swatch" style="background:rgba(248,113,113,0.4);border:1px solid rgba(220,38,38,0.5)"></span>Tier 3</span>
+          <span style="color:#ddd;margin:0 4px;">·</span>
+          <span class="key-item"><span class="key-swatch" style="background:rgba(196,181,253,0.5);border:1px solid rgba(124,58,237,0.6)"></span>Theorist</span>
+        </div>
+        <div class="demo-output" id="demo-output" style="margin-top:16px;"></div>
+      </div>
+      <div class="demo-score-panel">
+        <div class="score-display">
+          <div class="score-number-big" id="demo-score-num">—</div>
+          <div class="score-level" id="demo-score-level" style="color:var(--light)">Awaiting text</div>
+          <div class="score-desc" id="demo-score-desc"></div>
+        </div>
+        <div class="score-meter"><div class="score-meter-fill" id="demo-meter"></div></div>
+        <div class="score-stats">
+          <div class="score-stat">
+            <span class="score-stat-val" id="demo-hits">—</span>
+            <span class="score-stat-lbl">IAE hits</span>
+          </div>
+          <div class="score-stat">
+            <span class="score-stat-val" id="demo-words">—</span>
+            <span class="score-stat-lbl">Words</span>
+          </div>
+          <div class="score-stat">
+            <span class="score-stat-val" id="demo-density">—</span>
+            <span class="score-stat-lbl">Density</span>
+          </div>
+          <div class="score-stat">
+            <span class="score-stat-val" id="demo-per1k">—</span>
+            <span class="score-stat-lbl">IAE / 1k</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ORIGIN ── -->
+<section id="origin">
+  <div class="container">
+    <p class="section-eyebrow">Origin</p>
+    <div class="two-col">
+      <div>
+        <h2 class="section-heading">After<br>Rule & Levine</h2>
+        <div class="origin-quote">
+          IAE has a distinctive lexicon: <i>aporia, radically, space, proposition, biopolitical, tension, transversal, autonomy</i>. An artist’s work inevitably interrogates, questions, encodes, transforms, subverts, imbricates, displaces... <br>IAE rebukes English for its lack of nouns: <i>Visual</i> becomes <i>visuality</i>, <i>global</i> becomes <i>globality</i>, <i>potential</i> becomes <i>potentiality</i>, <i>experience</i> becomes … <i>experiencability</i>.
+          <span class="origin-attribution">— Alix Rule &amp; David Levine, <em>Triple Canopy</em>, 2012</span>
+        </div>
+      </div>
+      <div>
+        <p class="body-text">In 2012, sociologist Alix Rule and artist David Levine published <em>International Art English</em> in <em>Triple Canopy</em> — a rigorous, quietly devastating analysis of the language used in e-flux announcements. Applying corpus linguistics to over 13,000 press releases, they identified a global dialect that had emerged from the translation of French critical theory into English via the international art world.</p>
+        <p class="body-text" style="margin-top:20px;">IAE, they found, was not simply jargon. It was a grammatical system—one that favored abstraction over clarity, nominalized verbs into nouns, and deployed certain words (<em>practice, space, tension, engage</em>) with frequencies that diverged wildly from standard English. It was the language of cultural legitimation.</p>
+        <p class="body-text" style="margin-top:20px;">IAE Detector extends Rule and Levine's project into the browser. Rather than corpus analysis, it offers real-time feedback: a word-by-word scan, a weighted score, a visual register of intensity. It is a tool for reading as much as for critique; i.e., a way of decoding and making the dialect legible.</p>
+        <p class="body-text" style="margin-top:20px;"><a href="https://www.canopycanopycanopy.com/contents/international_art_english" target="_blank" rel="noopener">Read the original essay at Triple Canopy →</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ── -->
+<section id="how-it-works">
+  <div class="container">
+    <p class="section-eyebrow">How It Works</p>
+    <h2 class="section-heading">Scanning,<br>scoring, <span class="word-highlight">highlighting</span></h2>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">Scan</div>
+        <div class="step-title">Reads the full page</div>
+        <p class="step-body">On any webpage, click Scan Page. The extension reads all visible text—body copy, captions, headers. A single press release, an exhibit review, or a full critical essay: it handles all.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">Score</div>
+        <div class="step-title">Weighted intensity rating</div>
+        <p class="step-body">Each detected term is weighted by how specific it is to IAE. Common contextual words score low; sacred theoretical nouns score high; named theorists score highest of all. The total is normalized per 1,000 words, so short and long texts are comparable.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">Highlight</div>
+        <div class="step-title">Color-coded on the page</div>
+        <p class="step-body">Toggle highlighting to mark every IAE term directly in the text—four colors for four tiers of intensity. Hover over any highlighted word to see its classification. Toggle off to restore the original.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">Identify</div>
+        <div class="step-title">Top offenders panel</div>
+        <p class="step-body">The popup shows the highest-scoring terms from the page sorted by their combined weight and frequency. A useful shortcut to the words doing the most theoretical labor in any given text.</p>
+      </div>
+    </div>
+
+    <!-- Tiers -->
+    <div style="margin-top:80px;">
+      <p class="section-eyebrow">Highlight Key</p>
+      <div class="tier-list">
+        <div class="tier-item">
+          <div class="tier-swatch" style="background:rgba(253,224,71,0.6);border:1px solid rgba(234,179,8,0.5)"></div>
+          <div class="tier-label" style="color:#a16207">Tier 1</div>
+          <div class="tier-desc"><strong>Contextual words</strong> — Common in arts writing but not exclusively IAE. <em>Explore, engage, suggest, practice, community.</em> Flagged lightly; their presence alone is not diagnostic.</div>
+        </div>
+        <div class="tier-item">
+          <div class="tier-swatch" style="background:rgba(251,146,60,0.5);border:1px solid rgba(234,88,12,0.5)"></div>
+          <div class="tier-label" style="color:#c2410c">Tier 2</div>
+          <div class="tier-desc"><strong>Strong IAE signals</strong> — Words that appear at anomalous frequency in arts writing. <em>Discourse, affect, assemblage, embodiment, negotiation, tension, void.</em></div>
+        </div>
+        <div class="tier-item">
+          <div class="tier-swatch" style="background:rgba(248,113,113,0.4);border:1px solid rgba(220,38,38,0.5)"></div>
+          <div class="tier-label" style="color:#b91c1c">Tier 3</div>
+          <div class="tier-desc"><strong>Sacred IAE</strong> — The core theoretical lexicon and curator power phrases. <em>Positionality, spatiotemporal, potentiality, dehiscence, "at the intersection of…", "always already."</em></div>
+        </div>
+        <div class="tier-item">
+          <div class="tier-swatch" style="background:rgba(196,181,253,0.5);border:1px solid rgba(124,58,237,0.6)"></div>
+          <div class="tier-label" style="color:#6d28d9">Theorist</div>
+          <div class="tier-desc"><strong>The sanctioned canon</strong> — Full names of the theorists whose citation confers curatorial legitimacy: Foucault, Deleuze, Derrida, Butler, Haraway, Mbembe, Glissant, Gramsci, Moten, and their adjectival forms (Foucauldian, Deleuzian, Gramscian…).</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Score levels -->
+    <div style="margin-top:80px;">
+      <p class="section-eyebrow">Score Levels</p>
+      <table class="levels-table">
+        <thead>
+          <tr>
+            <th>Level</th>
+            <th>Score (IAE / 1k words)</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="level-badge" style="background:#f0fdf4;color:#166534">Clean</span></td>
+            <td class="level-score">0 – 5</td>
+            <td class="level-desc-text">Refreshingly legible prose.</td>
+          </tr>
+          <tr>
+            <td><span class="level-badge" style="background:#f7fee7;color:#3f6212">Slight Drift</span></td>
+            <td class="level-score">5 – 15</td>
+            <td class="level-desc-text">Some curatorial vocabulary present.</td>
+          </tr>
+          <tr>
+            <td><span class="level-badge" style="background:#fefce8;color:#854d0e">Curator Voice</span></td>
+            <td class="level-score">15 – 30</td>
+            <td class="level-desc-text">Recognizable IAE patterns emerging.</td>
+          </tr>
+          <tr>
+            <td><span class="level-badge" style="background:#fff7ed;color:#9a3412">Wall Text</span></td>
+            <td class="level-score">30 – 55</td>
+            <td class="level-desc-text">This text would fit in a press release.</td>
+          </tr>
+          <tr>
+            <td><span class="level-badge" style="background:#fef2f2;color:#991b1b">Deep IAE</span></td>
+            <td class="level-score">55 – 85</td>
+            <td class="level-desc-text">Dense theoretical register throughout.</td>
+          </tr>
+          <tr>
+            <td><span class="level-badge" style="background:#faf5ff;color:#581c87">Pure Theory</span></td>
+            <td class="level-score">85+</td>
+            <td class="level-desc-text">Unintelligible without a PhD in critical theory.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ── INSTALL ── -->
+<section id="install">
+  <div class="container">
+    <p class="section-eyebrow">Installation</p>
+    <div class="two-col">
+      <div>
+        <h2 class="section-heading">One click<br><em>to install</em></h2>
+        <p class="body-text">IAE Detector is a free Chrome extension available on the Chrome Web Store. Install in one click — no account, no sign-up required.</p>
+        <a href="https://chrome.google.com/webstore" class="btn-primary" style="display:inline-block;margin-top:32px;" target="_blank" rel="noopener">Add to Chrome — Free</a>
+      </div>
+      <div>
+        <div class="install-steps">
+          <div class="install-step">
+            <div class="install-step-num">1.</div>
+            <div class="install-step-text">Click <strong>Add to Chrome — Free</strong> to open the Chrome Web Store listing.</div>
+          </div>
+          <div class="install-step">
+            <div class="install-step-num">2.</div>
+            <div class="install-step-text">Click <strong>Add to Chrome</strong> in the Web Store, then confirm by clicking <strong>Add extension</strong> in the dialog.</div>
+          </div>
+          <div class="install-step">
+            <div class="install-step-num">3.</div>
+            <div class="install-step-text">The ⬡ icon will appear in your Chrome toolbar. Pin it for easy access via the Extensions menu <strong>⋮</strong>.</div>
+          </div>
+          <div class="install-step">
+            <div class="install-step-num">4.</div>
+            <div class="install-step-text">Navigate to any page with arts writing — a gallery press release, an e-flux announcement, an exhibition catalogue — and click the icon to scan.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PRIVACY ── -->
+<section id="privacy">
+  <div class="container">
+    <p class="section-eyebrow">Privacy Policy</p>
+    <h2 class="section-heading">No data<br><em>leaves your browser</em></h2>
+    <p class="body-text" style="max-width:580px;">IAE Detector is entirely local. It reads the text of pages you visit, processes everything on your device, and sends nothing anywhere. There are no servers, no analytics, no accounts, and no tracking of any kind.</p>
+    <div class="privacy-grid">
+      <div class="privacy-item">
+        <h3>What the extension reads</h3>
+        <p>The visible text content of the active browser tab when you click Scan Page. It does not read other tabs, your browsing history, passwords, form fields, or any other browser data.</p>
+      </div>
+      <div class="privacy-item">
+        <h3>What is stored</h3>
+        <p>Nothing is stored persistently. The extension holds no memory of which pages you have scanned, what scores were returned, or any text it has processed. Closing the popup clears everything.</p>
+      </div>
+      <div class="privacy-item">
+        <h3>Network requests</h3>
+        <p>The extension makes zero network requests. The word list, scoring logic, and all interface code are bundled locally. No data is sent to external servers at any point.</p>
+      </div>
+      <div class="privacy-item">
+        <h3>Permissions</h3>
+        <p>The extension requests <code>activeTab</code> (to read the current page when you click Scan) and <code>scripting</code> (to inject highlighting). It does not request access to all sites, your history, or background activity.</p>
+      </div>
+      <div class="privacy-item">
+        <h3>Third parties</h3>
+        <p>There are no third-party services, SDKs, analytics platforms, or advertising networks involved in this extension. It is a standalone tool with no external dependencies at runtime.</p>
+      </div>
+      <div class="privacy-item">
+        <h3>Open source</h3>
+        <p>The extension code is available to inspect. If you have concerns about what it does, you can read every line before installing. There is nothing to hide because nothing is collected.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="container">
+    <div>
+      <span class="footer-brand">IAE Detector</span>
+      <p class="footer-sub">A browser extension for detecting International Art English in arts writing. Built in homage to Rule and Levine's 2012 essay.</p>
+    </div>
+    <div class="footer-links">
+      <a href="#demo">Live Demo</a>
+      <a href="#origin">Origin &amp; Context</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="#install">Installation</a>
+      <a href="#privacy">Privacy Policy</a>
+      <a href="https://www.canopycanopycanopy.com/contents/international_art_english" target="_blank" rel="noopener">Rule &amp; Levine, 2012 →</a>
+    </div>
+  </div>
+  <div class="footer-copy container">
+    IAE Detector is an independent project. Not affiliated with any institution, gallery, or art fair.
+  </div>
+</footer>
+
+<script>
+// ── DEMO ENGINE ──
+const IAE_WORDS = {
+  interrogate:3,destabilize:3,foreground:3,decenter:3,unsettle:3,
+  signification:3,aporia:3,biopolitical:3,transversal:3,potentiality:3,
+  visuality:3,globality:3,rupture:3,autonomy:3,praxis:3,apperceptive:3,
+  dehiscence:3,plasticity:3,quantification:3,extrinsicality:3,intrinsicality:3,
+  hierarchy:2,expropriation:3,ontological:3,teleological:3,recursive:2,
+  heretical:2,symbolic:2,dialectical:2,anthropocentric:3,envisage:2,
+  individuate:3,individuated:3,transcends:2,disarranges:2,expropriates:3,
+  extracts:2,alterity:3,ontology:3,epistemology:3,phenomenology:3,
+  performativity:3,relationality:3,liminality:3,hybridity:3,
+  assemblage:3,positionality:3,spatiality:3,temporality:3,
+  materiality:3,coloniality:3,neoliberalism:3,hegemony:3,
+  precarity:3,intersubjective:3,transscalar:3,posthuman:3,
+  posthumanist:3,postdigital:3,postcolonial:3,postcoloniality:3,
+  decolonial:3,spatiotemporal:3,cartography:3,topology:3,
+  multiplicity:3,contingency:3,mediation:3,subjectivity:3,
+  objectivity:3,connectivity:3,reflexivity:3,discursivity:3,
+  normativity:3,affectivity:3,corporeality:3,virtuality:3,
+  textuality:3,sociality:3,emergence:3,deterritorialization:3,
+  reterritorialization:3,situatedness:3,institutionalization:3,
+  masks:2,confronts:2,suspends:2,negotiates:2,unfolds:2,
+  dialogue:2,hierarchical:2,tension:2,evocative:2,hegemonic:2,
+  encodes:2,imbricates:2,displaces:2,negation:2,totality:2,
+  dialectics:2,dialectic:2,multitude:2,platform:2,void:2,production:2,
+  reinterprets:2,interprets:2,heterogeneous:2,flesh:2,
+  discourse:2,agency:2,encounter:2,embodiment:2,affect:2,
+  visibility:2,representation:2,intervention:2,articulation:2,
+  negotiation:2,intersection:2,modality:2,formation:2,
+  constellation:2,ecology:2,archive:2,proposition:2,inquiry:2,
+  framework:2,gesture:2,disrupt:2,subvert:2,resist:2,contest:2,
+  traverse:2,inhabit:2,circulate:2,enact:2,evoke:2,
+  speculate:2,envision:2,trace:2,complicate:2,
+  discursive:2,situated:2,embodied:2,relational:2,
+  affective:2,performative:2,contingent:2,provisional:2,
+  dialogic:2,participatory:2,immersive:2,experiential:2,
+  territorial:2,emancipatory:2,marginalized:2,ephemeral:2,
+  fragmented:2,layered:2,porous:2,fluid:2,immaterial:2,tactile:2,
+  corporeal:2,sovereignty:2,extraction:2,displacement:2,
+  migration:2,collectivity:2,solidarity:2,belonging:2,exclusion:2,
+  perception:2,sensation:2,consciousness:2,presence:2,
+  absence:2,memory:2,intimacy:2,geography:2,territory:2,
+  landscape:2,threshold:2,border:2,governance:2,ideology:2,
+  capitalism:2,interpretation:2,logics:2,
+  radically:1,reality:1,examine:1,explore:1,investigate:1,
+  engage:1,address:1,unpack:1,challenge:1,facilitate:1,
+  constitute:1,weave:1,juxtapose:1,occupy:1,perform:1,
+  stage:1,imagine:1,propose:1,invite:1,suggest:1,map:1,
+  community:1,identity:1,labor:1,site:1,process:1,relation:1,
+  condition:1,field:1,system:1,critical:1,speculative:1,
+  collective:1,communal:1,material:1,spatial:1,temporal:1,power:1,
+};
+
+const IAE_PHRASES = [
+  "always already","at the intersection of","through a process of",
+  "in dialogue with","foregrounding questions of","engages with notions of",
+  "traces the relationship between","opens a space for",
+  "creates conditions for","operates within","challenges dominant narratives of",
+  "resists fixed interpretations","invites viewers to reconsider",
+  "unsettles conventional understandings of","situates itself within",
+  "brings into conversation","through an expanded understanding of",
+  "rather than offering answers","as a site of inquiry",
+  "through acts of translation","as a framework for imagining",
+  "the ways in which",
+];
+
+const IAE_THEORISTS = [
+  "Michel Foucault","Foucauldian","Gilles Deleuze","Deleuzian",
+  "Félix Guattari","Felix Guattari","Jacques Derrida","Derridean",
+  "Bruno Latour","Donna Haraway","Harawayan","Judith Butler","Butlerian",
+  "Achille Mbembe","Édouard Glissant","Edouard Glissant","Fred Moten",
+  "Antonio Gramsci","Gramscian",
+];
+
+const LEVELS = [
+  {min:0,max:5,label:"Clean",color:"#166534"},
+  {min:5,max:15,label:"Slight Drift",color:"#3f6212"},
+  {min:15,max:30,label:"Curator Voice",color:"#854d0e"},
+  {min:30,max:55,label:"Wall Text",color:"#9a3412"},
+  {min:55,max:85,label:"Deep IAE",color:"#991b1b"},
+  {min:85,max:Infinity,label:"Pure Theory",color:"#581c87"},
+];
+
+function escRe(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
+
+function getLevel(score){
+  return LEVELS.find(l=>score>=l.min&&score<l.max)||LEVELS[LEVELS.length-1];
+}
+
+function analyzeText(text){
+  let score=0,hits=0;
+  const found={};
+  const wordCount=text.trim().split(/\s+/).filter(w=>w.length>0).length||1;
+
+  IAE_PHRASES.forEach(p=>{
+    const re=new RegExp(escRe(p),'gi');
+    const m=(text.match(re)||[]).length;
+    if(m>0){score+=m*3;hits+=m;found[p]={count:m,weight:3};}
+  });
+  IAE_THEORISTS.forEach(t=>{
+    const re=new RegExp(escRe(t),'gi');
+    const m=(text.match(re)||[]).length;
+    if(m>0){score+=m*4;hits+=m;found[t]={count:m,weight:4};}
+  });
+  Object.entries(IAE_WORDS).forEach(([w,wt])=>{
+    const re=new RegExp(`\\b${escRe(w)}(?:s|ed|ing|ly|tion|ity|ness)?\\b`,'gi');
+    const m=(text.match(re)||[]).length;
+    if(m>0){score+=m*wt;hits+=m;found[w]={count:m,weight:wt};}
+  });
+
+  const normalized=Math.round((score/wordCount)*1000);
+  return{normalized,hits,wordCount,score,found};
+}
+
+function highlightText(text){
+  const allPatterns=[
+    ...IAE_PHRASES.map(p=>({pattern:escRe(p),weight:3,type:'phrase'})),
+    ...IAE_THEORISTS.map(t=>({pattern:escRe(t),weight:4,type:'theorist'})),
+    ...Object.entries(IAE_WORDS).map(([w,wt])=>({
+      pattern:`\\b${escRe(w)}(?:s|ed|ing|ly|tion|ity|ness)?\\b`,weight:wt,type:'word'
+    })),
+  ];
+  const combined=new RegExp(`(${allPatterns.map(p=>p.pattern).join('|')})`,'gi');
+
+  let result='',lastIndex=0,match;
+  combined.lastIndex=0;
+  while((match=combined.exec(text))!==null){
+    const before=text.slice(lastIndex,match.index);
+    if(before)result+=escHtml(before);
+    const matched=match[0];
+    const lower=matched.toLowerCase();
+    let weight=1;
+    if(IAE_THEORISTS.some(t=>lower===t.toLowerCase()))weight=4;
+    else if(IAE_PHRASES.some(p=>lower===p.toLowerCase()))weight=3;
+    else{
+      const base=Object.keys(IAE_WORDS).find(w=>lower===w||lower.startsWith(w));
+      if(base)weight=IAE_WORDS[base];
+    }
+    const cls=weight>=4?'hl-t4':weight===3?'hl-t3':weight===2?'hl-t2':'hl-t1';
+    result+=`<span class="${cls}" title="Tier ${weight}">${escHtml(matched)}</span>`;
+    lastIndex=match.index+matched.length;
+  }
+  result+=escHtml(text.slice(lastIndex));
+  return result;
+}
+
+function escHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+let debounceTimer;
+const input=document.getElementById('demo-input');
+const output=document.getElementById('demo-output');
+const scoreNum=document.getElementById('demo-score-num');
+const scoreLevel=document.getElementById('demo-score-level');
+const scoreDesc=document.getElementById('demo-score-desc');
+const meter=document.getElementById('demo-meter');
+const hitsEl=document.getElementById('demo-hits');
+const wordsEl=document.getElementById('demo-words');
+const densityEl=document.getElementById('demo-density');
+const per1kEl=document.getElementById('demo-per1k');
+
+const DESCS={
+  "Clean":"Refreshingly legible prose.",
+  "Slight Drift":"Some curatorial vocabulary present.",
+  "Curator Voice":"Recognizable IAE patterns emerging.",
+  "Wall Text":"This text would fit in a press release.",
+  "Deep IAE":"Dense theoretical register throughout.",
+  "Pure Theory":"Unintelligible without a PhD in critical theory.",
+};
+
+function runDemo(){
+  const text=input.value.trim();
+  if(!text){
+    output.innerHTML='';
+    scoreNum.textContent='—';
+    scoreLevel.textContent='Awaiting text';
+    scoreLevel.style.color='var(--light)';
+    scoreDesc.textContent='';
+    meter.style.width='0%';
+    [hitsEl,wordsEl,densityEl,per1kEl].forEach(el=>el.textContent='—');
+    return;
+  }
+  const {normalized,hits,wordCount}=analyzeText(text);
+  const level=getLevel(normalized);
+  const density=((hits/wordCount)*100).toFixed(1);
+
+  scoreNum.textContent=normalized;
+  scoreNum.style.color=level.color;
+  scoreLevel.textContent=level.label;
+  scoreLevel.style.color=level.color;
+  scoreDesc.textContent=DESCS[level.label]||'';
+  meter.style.width=Math.min(normalized/100*100,100)+'%';
+  hitsEl.textContent=hits;
+  wordsEl.textContent=wordCount>999?Math.round(wordCount/100)/10+'k':wordCount;
+  densityEl.textContent=density+'%';
+  per1kEl.textContent=normalized;
+
+  output.innerHTML=highlightText(text);
+}
+
+input.addEventListener('input',()=>{
+  clearTimeout(debounceTimer);
+  debounceTimer=setTimeout(runDemo,300);
+});
+
+// Run on load with placeholder content
+setTimeout(()=>{
+  const placeholder="The work proposes a speculative cartography of the ways in which affect and materiality negotiate the liminal thresholds of postcolonial subjectivity, foregrounding questions of alterity and positionality through an assemblage of discursive interventions that unsettle hegemonic formations of knowledge.";
+  input.value=placeholder;
+  runDemo();
+},400);
+</script>
+</body>
+</html>
