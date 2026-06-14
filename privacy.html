@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — IAE Detector</title>
+  <meta name="description" content="Privacy policy for IAE Detector, the International Art English scanner for Chrome.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #111111;
+      --white: #ffffff;
+      --mid: #555555;
+      --light: #999999;
+      --rule: #e0e0e0;
+      --accent: #c4b5fd;
+      --accent-dark: #7c3aed;
+      --grad: linear-gradient(135deg, #9333ea, #ec4899);
+      --page-max: 1080px;
+      --gutter: clamp(24px, 5vw, 80px);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+      color: var(--black);
+      background: var(--white);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: var(--page-max);
+      margin: 0 auto;
+      padding: 0 var(--gutter);
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--rule);
+    }
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+    }
+    .nav-logo {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--black);
+      text-decoration: none;
+    }
+    .nav-back {
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      color: var(--mid);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.15s;
+    }
+    .nav-back:hover { color: var(--black); }
+    .nav-cta {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--white);
+      background: var(--black);
+      padding: 8px 16px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .nav-cta:hover { background: var(--grad); }
+
+    /* ── HEADER ── */
+    .page-header {
+      padding: 120px 0 64px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .page-eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--light);
+      margin-bottom: 24px;
+    }
+    .page-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(36px, 5vw, 64px);
+      font-weight: 700;
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      margin-bottom: 24px;
+    }
+    .page-meta {
+      font-size: 14px;
+      color: var(--light);
+      font-family: 'Space Mono', monospace;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── CONTENT LAYOUT ── */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 80px;
+      padding: 64px 0 96px;
+      align-items: start;
+    }
+
+    /* ── SIDEBAR TOC ── */
+    .toc {
+      position: sticky;
+      top: 80px;
+    }
+    .toc-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--light);
+      margin-bottom: 16px;
+    }
+    .toc-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .toc-list a {
+      font-size: 13px;
+      color: var(--mid);
+      text-decoration: none;
+      padding: 6px 0;
+      display: block;
+      border-left: 2px solid transparent;
+      padding-left: 12px;
+      transition: color 0.15s, border-color 0.15s;
+      line-height: 1.4;
+    }
+    .toc-list a:hover {
+      color: var(--black);
+      border-left-color: var(--accent-dark);
+    }
+
+    /* ── POLICY SECTIONS ── */
+    .policy-body { max-width: 680px; }
+
+    .policy-section {
+      padding: 48px 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .policy-section:first-child { padding-top: 0; }
+    .policy-section:last-child { border-bottom: none; }
+
+    .policy-section h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+      scroll-margin-top: 80px;
+    }
+
+    .policy-section p {
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 1.8;
+      color: #333;
+      margin-bottom: 16px;
+    }
+    .policy-section p:last-child { margin-bottom: 0; }
+
+    .policy-section ul {
+      margin: 16px 0;
+      padding-left: 0;
+      list-style: none;
+    }
+    .policy-section ul li {
+      font-size: 15px;
+      line-height: 1.8;
+      color: #333;
+      padding: 8px 0 8px 20px;
+      border-bottom: 1px solid var(--rule);
+      position: relative;
+    }
+    .policy-section ul li:first-child { border-top: 1px solid var(--rule); }
+    .policy-section ul li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--light);
+      font-size: 12px;
+    }
+
+    .policy-callout {
+      background: #fafafa;
+      border-left: 3px solid var(--accent-dark);
+      padding: 20px 24px;
+      margin: 24px 0;
+    }
+    .policy-callout p {
+      font-size: 14px;
+      color: var(--mid);
+      margin: 0;
+      font-style: italic;
+    }
+
+    .policy-highlight {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      background: #f5f5f5;
+      padding: 2px 7px;
+      border-radius: 2px;
+      color: var(--black);
+    }
+
+    /* ── CONTACT ── */
+    .contact-box {
+      margin-top: 64px;
+      padding: 40px;
+      border: 1px solid var(--rule);
+    }
+    .contact-box h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .contact-box p {
+      font-size: 14px;
+      color: var(--mid);
+      line-height: 1.7;
+    }
+    .contact-box a { color: var(--black); }
+    .contact-box a:hover { color: var(--accent-dark); }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 48px 0;
+      border-top: 1px solid var(--rule);
+    }
+    footer .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .footer-copy {
+      font-size: 12px;
+      color: var(--light);
+      letter-spacing: 0.04em;
+    }
+    .footer-links {
+      display: flex;
+      gap: 24px;
+    }
+    .footer-links a {
+      font-size: 12px;
+      color: var(--mid);
+      text-decoration: none;
+    }
+    .footer-links a:hover { color: var(--black); }
+
+    @media (max-width: 768px) {
+      .content-grid { grid-template-columns: 1fr; gap: 32px; }
+      .toc { position: static; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <a href="index.html" class="nav-logo">IAE Detector</a>
+    <a href="index.html" class="nav-back">← Back to site</a>
+    <a href="index.html#install" class="nav-cta">Get Extension</a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="container">
+    <p class="page-eyebrow">Legal</p>
+    <h1 class="page-title">Privacy Policy</h1>
+    <p class="page-meta">IAE Detector — Chrome Extension &nbsp;·&nbsp; Effective date: June 2026 &nbsp;·&nbsp; Last updated: June 2026</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="content-grid">
+
+    <!-- Sidebar TOC -->
+    <aside class="toc">
+      <p class="toc-label">Contents</p>
+      <ul class="toc-list">
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#data-collected">Data We Collect</a></li>
+        <li><a href="#data-not-collected">Data We Do Not Collect</a></li>
+        <li><a href="#permissions">Permissions Explained</a></li>
+        <li><a href="#third-parties">Third Parties</a></li>
+        <li><a href="#storage">Local Storage</a></li>
+        <li><a href="#children">Children's Privacy</a></li>
+        <li><a href="#changes">Changes to This Policy</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </aside>
+
+    <!-- Policy body -->
+    <main class="policy-body">
+
+      <div class="policy-section" id="overview">
+        <h2>Overview</h2>
+        <p>IAE Detector is a Chrome browser extension that scans web pages for International Art English (IAE) vocabulary, scores the density of that vocabulary, and optionally highlights identified terms directly on the page.</p>
+        <div class="policy-callout">
+          <p>IAE Detector collects no personal data, sends no information to any server, and has no analytics, tracking, or telemetry of any kind. Everything the extension does happens locally on your device.</p>
+        </div>
+        <p>This Privacy Policy explains in detail what data the extension accesses, why, and what it does with it — to ensure full transparency with users and compliance with the Chrome Web Store Developer Program Policies.</p>
+      </div>
+
+      <div class="policy-section" id="data-collected">
+        <h2>Data We Collect</h2>
+        <p>IAE Detector accesses only one type of data:</p>
+        <ul>
+          <li><strong>The visible text content of the active browser tab</strong> — read locally, on-device, only when you click "Scan Page." This text is processed immediately to produce a score and word list, then discarded. It is never stored, logged, or transmitted.</li>
+        </ul>
+        <p>That is the complete and exhaustive list. The extension accesses no other data at any time.</p>
+      </div>
+
+      <div class="policy-section" id="data-not-collected">
+        <h2>Data We Do Not Collect</h2>
+        <p>The following data is never accessed, stored, or transmitted by IAE Detector under any circumstances:</p>
+        <ul>
+          <li>Your name, email address, or any personally identifiable information</li>
+          <li>Your browsing history or the URLs of pages you visit</li>
+          <li>The content of other browser tabs</li>
+          <li>Cookies, session data, or authentication tokens</li>
+          <li>Passwords or form field content</li>
+          <li>Your IP address or location</li>
+          <li>Device identifiers or hardware information</li>
+          <li>Usage patterns, click data, or analytics of any kind</li>
+          <li>The text of pages you scan — this is processed and immediately discarded</li>
+        </ul>
+        <p>IAE Detector has no user accounts, no login, no registration, and no mechanism for identifying individual users.</p>
+      </div>
+
+      <div class="policy-section" id="permissions">
+        <h2>Permissions Explained</h2>
+        <p>IAE Detector requests the following Chrome permissions, each strictly necessary for the extension to function:</p>
+        <ul>
+          <li>
+            <strong><span class="policy-highlight">activeTab</span></strong> — Allows the extension to read the text content of the currently active tab when you click "Scan Page." Without this permission, the extension cannot scan any page. This permission is scoped to a single, explicit user action and does not grant background access.
+          </li>
+          <li>
+            <strong><span class="policy-highlight">scripting</span></strong> — Allows the extension to inject a content script into the active page when you enable highlighting. This script marks up IAE terms with colored spans and removes them when you click "Hide." No data is extracted or transmitted by this script.
+          </li>
+          <li>
+            <strong><span class="policy-highlight">storage</span></strong> — Used only to remember your highlight toggle preference between sessions (on or off). No personal data, text content, or page data is stored using this permission.
+          </li>
+        </ul>
+        <p>The extension does not request <span class="policy-highlight">&lt;all_urls&gt;</span> host permissions, does not run in the background, and does not access any page without an explicit user action.</p>
+      </div>
+
+      <div class="policy-section" id="third-parties">
+        <h2>Third Parties</h2>
+        <p>IAE Detector has no relationship with any third party in connection with user data. Specifically:</p>
+        <ul>
+          <li>No analytics services (e.g. Google Analytics, Mixpanel) are used</li>
+          <li>No advertising networks are involved</li>
+          <li>No data brokers or data-sharing arrangements exist</li>
+          <li>No external APIs are called by the extension at runtime</li>
+          <li>No crash reporting or error logging services are used</li>
+          <li>No third-party SDKs or scripts are bundled in the extension</li>
+        </ul>
+        <p>The extension is entirely self-contained. All logic — the word list, scoring algorithm, highlighting engine, and popup interface — runs locally from the installed extension files, with no network requests of any kind.</p>
+      </div>
+
+      <div class="policy-section" id="storage">
+        <h2>Local Storage</h2>
+        <p>IAE Detector uses Chrome's local storage API only to persist your highlight preference (whether highlighting is toggled on or off) between sessions. This preference is:</p>
+        <ul>
+          <li>Stored locally on your device only</li>
+          <li>Never transmitted anywhere</li>
+          <li>Readable only by the IAE Detector extension itself</li>
+          <li>Clearable at any time by removing the extension or clearing extension data in Chrome settings</li>
+        </ul>
+        <p>No text content, page data, scan history, or any other information is stored locally or remotely.</p>
+      </div>
+
+      <div class="policy-section" id="children">
+        <h2>Children's Privacy</h2>
+        <p>IAE Detector does not knowingly collect any information from anyone, including children under the age of 13. Because the extension collects no personal data from any user, it is fully compliant with the Children's Online Privacy Protection Act (COPPA) and equivalent regulations.</p>
+      </div>
+
+      <div class="policy-section" id="changes">
+        <h2>Changes to This Policy</h2>
+        <p>If we make material changes to this Privacy Policy — for example, if the extension adds a feature that involves data collection — we will update this page and revise the "Last updated" date at the top. Continued use of the extension after any such update constitutes acceptance of the revised policy.</p>
+        <p>Given that IAE Detector is designed to be a privacy-preserving, fully local tool, we do not anticipate material changes to this policy.</p>
+      </div>
+
+      <div class="contact-box" id="contact">
+        <h3>Contact</h3>
+        <p>If you have questions about this Privacy Policy or about how IAE Detector handles data, you can reach us via the Chrome Web Store listing page, or through the project's GitHub repository.</p>
+        <p style="margin-top:12px;">This Privacy Policy applies solely to the IAE Detector Chrome extension. It does not apply to any third-party websites or services linked from the extension or its accompanying website.</p>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <span class="footer-copy">© 2026 IAE Detector. An independent project.</span>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="index.html#install">Install</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
